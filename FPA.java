@@ -10,7 +10,7 @@ import java.util.Random;
 public class FPA {
     int t, maxGeneration, n;
     int bestx1Pos, bestx2Pos;
-    int[] sol;
+    int[] sol, cover;
     int[][] restricciones;;
     float p, gBest[],gBBest[],BBest,s, next_x1[],next_x2[],x1[],x2[];
     GenerateFlowers flowers;
@@ -24,6 +24,7 @@ public class FPA {
         this.n = n;
         this.restricciones = new int[][]{{1,1,0,0,0,0,0}, {1,1,1,1,0,0,1}, {0,1,1,1,0,0,0}, {0,1,1,1,1,0,1}, {0,0,0,1,1,1,1}, {0,0,0,0,1,1,0}, {0,1,0,1,1,0,1}};
         sol=new int[7];
+        cover= new int[7];
         //flowers=new GenerateFlowers();      //se genera la población
         //x1=flowers.Generate(n,8);
         //x2=flowers.Generate(n,(float)5.33);
@@ -101,9 +102,15 @@ public class FPA {
             min=10000;
             for(int j=0;j<restricciones[i].length;j++){
                 if(restricciones[i][j]>=1){
-                    if(restricciones[i][j]<min){
+                    if(restricciones[i][j]<min &&cover[i]<1){
+                        sol[j]=1;
                         min=restricciones[i][j];
-                        sol[i]=1;
+                        for(int k=i;k<restricciones.length;k++){
+                            if(restricciones[k][j]>=1){
+                                cover[k]=1;
+                            }
+                        }
+                        
                     }
                 }     
             }                
