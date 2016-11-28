@@ -1,8 +1,5 @@
 package pollinationFlowers;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-
 /**
  *
  * @author roberto

@@ -15,13 +15,11 @@ public class FPA {
     float p, gBest[],gBBest[],BBest,s, next_x1[],next_x2[],x1[],x2[];
     GenerateFlowers flowers;
     Random rand;
-    String path;
     
     public FPA(int maxGeneration, int n){   
 //asignación de variables
         VarCons varcons= new VarCons();
-        String path="E:\\uvalpo\\2do Semestre 2016\\fia\\tarea 2\\input\\scp41.txt";
-        int[][] var=varcons.generate(path);
+        int[][] var=varcons.generate();
         this.maxGeneration=maxGeneration;
         this.n = n;
         this.restricciones = new int[][]{{1,1,0,0,0,0,0}, {1,1,1,1,0,0,1}, {0,1,1,1,0,0,0}, {0,1,1,1,1,0,1}, {0,0,0,1,1,1,1}, {0,0,0,0,1,1,0}, {0,1,0,1,1,0,1}};
@@ -44,7 +42,7 @@ public class FPA {
   //      gBest= GBest();                     //Mejor solución inicial
         this.min(restricciones);
         for(int i=0;i<restricciones.length;i++){
-            System.out.println("cumple: "+this.Cover(restricciones[i],restricciones.length));
+            System.out.println("cumple: "+this.Cover(restricciones[i],restricciones.length,0,0));
             
         }
         
@@ -105,7 +103,7 @@ public class FPA {
                 if(restricciones[i][j]>=1){
                     if(restricciones[i][j]<min){
                         min=restricciones[i][j];
-                        sol[j]=1;
+                        sol[i]=1;
                     }
                 }     
             }                
@@ -116,16 +114,13 @@ public class FPA {
         }
     }
     
-    public int Cover(int[] restriccion,int length){
-        int acumulado=1;
-        if(length-1<1) return acumulado;
+    public int Cover(int[] restriccion,int length,int acumulado,int pos){
+        if(length<1) return acumulado;
         else{
-            acumulado=acumulado*restriccion[length-1];
+            acumulado=acumulado+restriccion[restriccion.length-length]*sol[pos++];
             length--;
-            return acumulado;
-        }
-            
-        
+            return Cover(restriccion, length, acumulado,pos);
+        }   
     }
     
     public void ShowPop(){              

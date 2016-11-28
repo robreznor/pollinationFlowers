@@ -2,8 +2,6 @@ package pollinationFlowers;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  *
@@ -12,10 +10,10 @@ import java.nio.file.Paths;
 public class VarCons {
     int varTotal, constTotal, varCount=0, constCount=0,constNum = 0, constArrayNum=1;
     String  line = null;
-    public int[][] generate(String path){
+    public int[][] generate(){
         try{
            // open input stream test.txt for reading purpose.
-           BufferedReader br = new BufferedReader(new FileReader(path));
+           BufferedReader br = new BufferedReader(new FileReader(".//src//pollinationFlowers//input//scp41.txt"));
            line=br.readLine();
            varTotal=Integer.parseInt(line.split(" ")[2]);
            constTotal=Integer.parseInt(line.split(" ")[1]);
