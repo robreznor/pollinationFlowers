@@ -11,10 +11,10 @@ public class FlowersPolination {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        FPA fpa = new FPA(15,1500);
+        FPA fpa = new FPA(10000,100);
         fpa.Algorithm();
        
-        
+     
     
         
         

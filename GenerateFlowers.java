@@ -6,12 +6,16 @@ import java.util.Random;
  */
 public class GenerateFlowers {
     
-    public float[] Generate(int n,float lim){ //Genera la población
-        float[] flowers = new float[n];
-        for(int i=0;i<n;i++){      
-                Random rand=new Random();
-                flowers[i]=rand.nextFloat()*lim;  
-        }
+    public int[][] Generate(int n, int m){ //Genera la población
+        int[][] flowers = new int[n][m];
+           
+        for (int i = 0; i < n; i++) {
+             for(int j=0;j< m;j++){      
+                    Random rand=new Random();
+                    flowers[i][j]=(int)(rand.nextInt(2));
+            }
+            
+        } 
         return flowers;
     }
     

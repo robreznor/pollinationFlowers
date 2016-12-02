@@ -35,6 +35,7 @@ public class VarCons {
                    }
                }
            }
+           
            return output;
         }catch(Exception e){
            e.printStackTrace();

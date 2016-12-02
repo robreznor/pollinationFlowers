@@ -1,6 +1,6 @@
 package pollinationFlowers;
 
-import java.text.DecimalFormat;
+import static java.lang.Math.exp;
 import java.util.Random;
 
 /**
@@ -8,149 +8,114 @@ import java.util.Random;
  * @author roberto
  */
 public class FPA {
-    int t, maxGeneration, n;
-    int bestx1Pos, bestx2Pos;
-    int[] sol, cover;
-    int[][] restricciones;;
-    float p, gBest[],gBBest[],BBest,s, next_x1[],next_x2[],x1[],x2[];
+    int t, maxGeneration,n, gBest, varLength, pos;
+    int[] cost, best, currentBest, bestOfBest;
+    int[][] var,sol,next;
+    float p ,x ,s;
     GenerateFlowers flowers;
-    Random rand;
+    Random rand, bin;
     
     public FPA(int maxGeneration, int n){   
-//asignación de variables
+
         VarCons varcons= new VarCons();
-        int[][] var=varcons.generate();
+        var=varcons.generate();
+        varLength=var[0].length;
         this.maxGeneration=maxGeneration;
         this.n = n;
-        this.restricciones = new int[][]{{1,1,0,0,0,0,0}, {1,1,1,1,0,0,1}, {0,1,1,1,0,0,0}, {0,1,1,1,1,0,1}, {0,0,0,1,1,1,1}, {0,0,0,0,1,1,0}, {0,1,0,1,1,0,1}};
-        sol=new int[7];
-        cover= new int[7];
-        //flowers=new GenerateFlowers();      //se genera la población
-        //x1=flowers.Generate(n,8);
-        //x2=flowers.Generate(n,(float)5.33);
+        sol=new int[n][varLength];
+        next=new int[n][varLength];
+        bestOfBest=new int[varLength];
+        flowers=new GenerateFlowers();      
+        sol=flowers.Generate(n,varLength);
         p=(float)0.8;
         rand = new Random();
+        bin = new Random();
         s=100;
-        gBBest= new float[2];
-        //next_x1=new float[x1.length];
-        //next_x2=new float[x2.length];               
+        
+               
     }
     /**
      * este metodo hace la pega
      */
     public void Algorithm(){
-        
-  //      gBest= GBest();                     //Mejor solución inicial
-        this.min(restricciones);
-        for(int i=0;i<restricciones.length;i++){
-            System.out.println("cumple: "+this.Cover(restricciones[i],restricciones.length,0,0));
-            
-        }
-        
+        sol=Repair(var, sol);
+        best=  Best(sol);                     //Mejor solución inicial
+        gBest= Fitness(best, var[0]);
         while(t < maxGeneration){           //Iteraciones que se ejecuta el algoritmo
-            for(int i=0;i<n;i++){
-                
-                if(rand.nextFloat()<p){ 
- //                   next_x1[i]=x1[i]+ Levy()*(gBest[0]-x1[i]);      //La planta es del tipo biotico por lo tanto el transporte se realiza mediante una dist. de Levy                
-                }
-                else{
-//                   next_x2[i]=x2[i]+ rand.nextFloat()*(Math.abs(x2[(int)(rand.nextDouble()*n-1)]-x2[(int)(rand.nextDouble()*n-1)])); //Transporte mediante una dist. Uniforme 
-
-                }
+            for(int i = 0; i < n; i++){
+                for (int j = 0; j < sol[i].length; j++) {
+                    if (p < rand.nextFloat()) {
+                        x=sol[i][j]*var[0][j]+ Levy()*(gBest*var[0][j]-sol[i][j]*var[0][j]);
+                    }else{
+                        pos=rand.nextInt(varLength);
+                        x=sol[i][j]*var[0][j] + rand.nextFloat()*(Math.abs(sol[i][pos]*var[0][pos]-sol[i][rand.nextInt(varLength)]*var[0][pos])); //Transporte mediante una dist. Uniforme 
+                    }
+                    //System.out.println(""+1/(1+(exp(-x))));
+                     if(1/(1+(exp(-x)))<=0.5) next[i][j]=1;
+                     else next [i][j]=0;  
+                }    
             }
- //           gBest= GBest();
-     
-   /*         if(GBestValue()>BBest){  //Si el nuevo valor tiene mejor fitness se selecciona como mejor solución 
-                gBBest = gBest;
-                BBest=GBestValue();
-            } 
-     */       
-            x1=next_x1;  
-            x2=next_x2;
-            t++;           
+            sol=Repair(var, sol);
+            currentBest= Best(sol);
+            if(Fitness(currentBest, var[0])<Fitness(best,var[0])){
+                best=currentBest;
+            }
+            if(Fitness(best, var[0])< gBest){
+                gBest= Fitness(best, var[0]);
+                bestOfBest = best;
+            }
+            sol=next;
+            t++;
         }
-        Sol();
+            System.out.println(""+Fitness(bestOfBest,var[0]));
     }
     
     private float Levy(){ //Calcula la distrib. de Levy
         float levy = (float)(1.5*(Math.sqrt(Math.PI)/2)*Math.sin(Math.PI*(1.5/2))*(1/Math.pow(s,2.5))); 
         return levy;
     }
-
-  /*  public float[] GBest(){                     //Calcula la mejor solución de una iteración.
-        float best=0,sol;
-        float[] bests= new float[2];
-        for(int i=0;i<x1.length;i++){
-                sol=x1[i]*40000+x2[ i]*45000;
-                if(sol>best && Restriccion(i,i)){
-                    best = sol;
-                    bests[0]=x1[i];
-                    bests[1]=x2[i];
-                }       
+  
+    private int[][] Repair(int [][] constraint, int[][] sol){
+        boolean ok;
+        for (int i = 0; i < sol.length; i++) {
+            for(int j = 1; j < constraint.length; j++) {
+               ok=false;
+               for(int k=0; k < constraint[j].length; k++){
+                   if(constraint[j][k]*sol[i][k]>=1){
+                       ok=true;
+                       break;
+                   }
+               } 
+               if(!ok){
+                     for (int k = 0; k < varLength; k++) {
+                       if(constraint[j][k]>0){
+                           sol[i][k] = 1;
+                       } 
+                       
+                   }
+               }
+            }    
         }
-        return bests;
+        return sol;
+    }  
+    
+    private int Fitness(int sol[], int cost[]){
+            int fitness=0;
+            for(int i=0;i<varLength;i++){
+                fitness=fitness+sol[i]*cost[i];
+            }
+            return fitness;
     }
     
-    public float GBestValue(){                  //Evalua la función objetivo. 
-        return gBest[0]*40000+gBest[1]*45000;
-    }
-    */
-    
-    public void min(int[][] restricciones){
-        int min;
-        for(int i=0;i<restricciones.length;i++){
-            min=10000;
-            for(int j=0;j<restricciones[i].length;j++){
-                if(restricciones[i][j]>=1){
-                    if(restricciones[i][j]<min &&cover[i]<1){
-                        sol[j]=1;
-                        min=restricciones[i][j];
-                        for(int k=i;k<restricciones.length;k++){
-                            if(restricciones[k][j]>=1){
-                                cover[k]=1;
-                            }
-                        }
-                        
-                    }
-                }     
-            }                
-        }
-        
-        for(int i=0;i<sol.length;i++){
-            System.out.println(""+sol[i]);
-        }
-    }
-    
-    public int Cover(int[] restriccion,int length,int acumulado,int pos){
-        if(length<1) return acumulado;
-        else{
-            acumulado=acumulado+restriccion[restriccion.length-length]*sol[pos++];
-            length--;
-            return Cover(restriccion, length, acumulado,pos);
+    private int[] Best(int sol[][]){
+        int bestPos=0, fitness, bestFitness=999999999; 
+        for (int i = 0; i < sol.length; i++) {
+            fitness=this.Fitness(sol[i], var[0]);
+            if(fitness<bestFitness){
+                bestFitness=fitness;
+                bestPos=i;
+            }       
         }   
-    }
-    
-    public void ShowPop(){              
-        for(int i=0;i<x1.length;i++){           //Muesta la población
-            System.out.print("x1: "+x1[i]+" ");
-        }
-        System.out.println();
-          for(int i=0;i<x1.length;i++){
-            System.out.print("x2: "+x2[i]+" ");
-        }
-        System.out.println();
-         
-    }
-
-    public boolean Restriccion(int i,int j){    //Verifica que se cumplan las restricciones
-        if(20*x1[i]+30*x2[j]<=300 && 30*x1[i]+50*x2[j]<=800 && 10*x1[i]+15*x2[j]<=80) return true;
-        else return false;
-   
-    }
-    
-    public void Sol(){                          //Imprime la solución del problema
-        DecimalFormat decimales = new DecimalFormat("0.000");
-        System.out.println("["+gBBest[0]+"]["+gBBest[1]+"] = "+ decimales.format(gBBest[0]*40000+45000*gBBest[1]));
-        
-    }
+        return sol[bestPos];
+    }    
 }
