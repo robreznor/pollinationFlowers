@@ -10,10 +10,10 @@ import java.io.FileReader;
 public class VarCons {
     int varTotal, constTotal, varCount=0, constCount=0,constNum = 0, constArrayNum=1;
     String  line = null;
-    public int[][] generate(){
+    public int[][] generate(String archivo){
         try{
            // open input stream test.txt for reading purpose.
-           BufferedReader br = new BufferedReader(new FileReader(".//src//pollinationFlowers//input//scp41.txt"));
+           BufferedReader br = new BufferedReader(new FileReader(".//src//pollinationFlowers//input//"+archivo));
            line=br.readLine();
            varTotal=Integer.parseInt(line.split(" ")[2]);
            constTotal=Integer.parseInt(line.split(" ")[1]);

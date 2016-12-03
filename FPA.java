@@ -8,20 +8,24 @@ import java.util.Random;
  * @author roberto
  */
 public class FPA {
-    int t, maxGeneration,n, gBest, varLength, pos;
+    int t, maxGeneration,n, gBest, varLength, pos, instance;
     int[] cost, best, currentBest, bestOfBest;
     int[][] var,sol,next;
     float p ,x ,s;
     GenerateFlowers flowers;
     Random rand, bin;
-    
-    public FPA(int maxGeneration, int n){   
-
+    WriteFile wr;
+    String size, archivo;
+    boolean isOpen;
+    public FPA(int maxGeneration, int n, int instance, boolean isOpen){   
+         
         VarCons varcons= new VarCons();
-        var=varcons.generate();
+        this.archivo="scp"+instance+".txt";
+        var=varcons.generate(archivo);
         varLength=var[0].length;
         this.maxGeneration=maxGeneration;
         this.n = n;
+        this.instance= instance;
         sol=new int[n][varLength];
         next=new int[n][varLength];
         bestOfBest=new int[varLength];
@@ -31,43 +35,48 @@ public class FPA {
         rand = new Random();
         bin = new Random();
         s=100;
-        
-               
+        wr=new WriteFile();
+        size=Integer.toString(var.length-1)+" x "+Integer.toString(varLength);
+        this.isOpen=isOpen;
     }
     /**
      * este metodo hace la pega
      */
     public void Algorithm(){
-        sol=Repair(var, sol);
+        
+        sol=Repair();
         best=  Best(sol);                     //Mejor solución inicial
-        gBest= Fitness(best, var[0]);
+        gBest= Fitness(best);
         while(t < maxGeneration){           //Iteraciones que se ejecuta el algoritmo
             for(int i = 0; i < n; i++){
                 for (int j = 0; j < sol[i].length; j++) {
                     if (p < rand.nextFloat()) {
-                        x=sol[i][j]*var[0][j]+ Levy()*(gBest*var[0][j]-sol[i][j]*var[0][j]);
+                        x=sol[i][j]+ Levy()*(gBest-sol[i][j]);
                     }else{
-                        pos=rand.nextInt(varLength);
-                        x=sol[i][j]*var[0][j] + rand.nextFloat()*(Math.abs(sol[i][pos]*var[0][pos]-sol[i][rand.nextInt(varLength)]*var[0][pos])); //Transporte mediante una dist. Uniforme 
+                        x=sol[i][j] + rand.nextFloat()*(Math.abs(sol[i][rand.nextInt(varLength)]-sol[i][rand.nextInt(varLength)])); //Transporte mediante una dist. Uniforme 
                     }
                     //System.out.println(""+1/(1+(exp(-x))));
-                     if(1/(1+(exp(-x)))<=0.5) next[i][j]=1;
-                     else next [i][j]=0;  
-                }    
+                    if(1/(1+(exp(-x)))>=0.84) next[i][j]=1;
+                    else next [i][j]=0;  
+                }
             }
-            sol=Repair(var, sol);
+            
+            System.arraycopy(next, 0, sol, 0, next.length);
+            sol=Repair();
+            //System.out.println(""+Fitness(Best(sol)));
             currentBest= Best(sol);
-            if(Fitness(currentBest, var[0])<Fitness(best,var[0])){
-                best=currentBest;
+            if(Fitness(currentBest)<Fitness(best)){
+                System.arraycopy(currentBest, 0, best, 0, currentBest.length);
             }
-            if(Fitness(best, var[0])< gBest){
-                gBest= Fitness(best, var[0]);
-                bestOfBest = best;
+            if(Fitness(best)< gBest){
+                gBest= Fitness(best);              
+                System.arraycopy(best, 0, bestOfBest, 0, best.length);
             }
-            sol=next;
             t++;
         }
-            System.out.println(""+Fitness(bestOfBest,var[0]));
+        
+        wr.WriteFile(Integer.toString(instance),size,Integer.toString(Fitness(bestOfBest)),archivo, isOpen);
+        System.out.println(""+Fitness(bestOfBest));
     }
     
     private float Levy(){ //Calcula la distrib. de Levy
@@ -75,21 +84,22 @@ public class FPA {
         return levy;
     }
   
-    private int[][] Repair(int [][] constraint, int[][] sol){
+    private int[][] Repair(){
         boolean ok;
         for (int i = 0; i < sol.length; i++) {
-            for(int j = 1; j < constraint.length; j++) {
+            for(int j = 1; j < var.length; j++) {
                ok=false;
-               for(int k=0; k < constraint[j].length; k++){
-                   if(constraint[j][k]*sol[i][k]>=1){
+               for(int k=0; k < varLength; k++){
+                   if(var[j][k]*sol[i][k]>=1){
                        ok=true;
                        break;
                    }
                } 
                if(!ok){
-                     for (int k = 0; k < varLength; k++) {
-                       if(constraint[j][k]>0){
+                     for (int k = 1; k < varLength; k++) {
+                       if(var[j][k]>0){
                            sol[i][k] = 1;
+                           break;
                        } 
                        
                    }
@@ -99,10 +109,10 @@ public class FPA {
         return sol;
     }  
     
-    private int Fitness(int sol[], int cost[]){
+    private int Fitness(int sol[]){
             int fitness=0;
             for(int i=0;i<varLength;i++){
-                fitness=fitness+sol[i]*cost[i];
+                fitness=fitness+sol[i]*var[0][i];
             }
             return fitness;
     }
@@ -110,7 +120,7 @@ public class FPA {
     private int[] Best(int sol[][]){
         int bestPos=0, fitness, bestFitness=999999999; 
         for (int i = 0; i < sol.length; i++) {
-            fitness=this.Fitness(sol[i], var[0]);
+            fitness=this.Fitness(sol[i]);
             if(fitness<bestFitness){
                 bestFitness=fitness;
                 bestPos=i;
