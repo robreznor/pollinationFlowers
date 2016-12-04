@@ -10,14 +10,24 @@ public class FlowersPolination {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
-        int instance=40;
+        
+        int instance=41;
+        int j,t,n;
+        
+        n=10000;
+        t=30;
+                ;
         boolean isOpen=false;
-        for (int i = instance; i <= 65; i++) {
-        if(i==60) i++;
-        FPA fpa = new FPA(30,100,i, isOpen);
-        isOpen=true;
-        fpa.Algorithm();           
+        for (int i = instance; i <= 41; i++) {
+            if(i==60) i++;
+            j=0;
+            while(j<30){
+                FPA fpa = new FPA(t,n,i, isOpen);
+                isOpen=true;
+                fpa.Algorithm();
+                j++;
+            }
+                    
         }        
     }
 }

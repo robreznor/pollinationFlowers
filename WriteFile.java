@@ -14,7 +14,7 @@ import java.io.PrintWriter;
  */
 public class WriteFile {
     
-    public void WriteFile(String Instance, String size, String sol, String archivo, boolean isOpen){
+    public void WriteFile(String Instance, String size, String sol, String archivo, boolean isOpen, int seed){
 
         FileWriter fichero = null;
         PrintWriter pw = null;
@@ -25,13 +25,15 @@ public class WriteFile {
                 if(!isOpen){
                 pw.print("| Instance\t");
                 pw.print("| Size\t\t\t");
-                pw.println("| Best\t");
-                pw.println("=====================================");    
+                pw.print("| Best\t");
+                pw.println("| Seed\t");
+                pw.println("===================================================");    
             }
             
             pw.print("| "+Instance+"\t\t");
             pw.print("| "+size+"\t");
-            pw.println("| "+sol+"\t");
+            pw.print("| "+sol+"\t");
+            pw.println("| "+seed+"\t");
            
 
         }catch(Exception e){
