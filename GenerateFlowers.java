@@ -4,8 +4,9 @@ import java.util.Random;
  *
  * @author roberto
  */
-public class GenerateFlowers {
+public class GenerateFlowers{
     
+
     public int[][] Generate(int n, int m,int seed){ //Genera la población
         int[][] flowers = new int[n][m];
         Random rand=new Random(seed);   

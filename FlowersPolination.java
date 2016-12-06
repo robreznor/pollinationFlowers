@@ -1,5 +1,7 @@
 package pollinationFlowers;
 
+import javax.swing.JPanel;
+
 /**
  *
  * @author roberto
@@ -14,14 +16,14 @@ public class FlowersPolination {
         int instance=41;
         int j,t,n;
         
-        n=1000;
-        t=300;
-                ;
+        n=100;
+        t=100;
+        
         boolean isOpen=false;
-        for (int i = instance; i <= 41; i++) {
+        for (int i = instance; i <= 65; i++) {
             if(i==60) i++;
             j=0;
-            while(j<10){
+            while(j<1){
                 FPA fpa = new FPA(t,n,i, isOpen);
                 isOpen=true;
                 fpa.Algorithm();
