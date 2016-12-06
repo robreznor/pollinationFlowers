@@ -32,17 +32,19 @@ public class FPA {
         sol=new int[n][varLength];
         next=new int[n][varLength];
         bestOfBest=new int[varLength];
-        flowers=new GenerateFlowers();      
-        sol=flowers.Generate(n,varLength);
-        p=(float)0.8;
+        flowers=new GenerateFlowers();
         rand = new Random();
+        this.seed=rand.hashCode();
+        //this.seed=1956725890;
+        rand.setSeed(seed);
+        sol=flowers.Generate(n,varLength,seed);
+        p=(float)0.8;
+        
         s=100;
         wr=new WriteFile();
         size=Integer.toString(var.length-1)+" x "+Integer.toString(varLength);
         this.isOpen=isOpen;
-        this.seed=rand.hashCode();
-        //this.seed=983687898;
-        rand.setSeed(seed);
+        
     }
     
     /**
@@ -63,7 +65,7 @@ public class FPA {
                         x=sol[i][j] + rand.nextFloat()*(Math.abs(sol[i][rand.nextInt(varLength)]-sol[i][rand.nextInt(varLength)])); //Transporte mediante una dist. Uniforme 
                     }
                     //System.out.println(""+1/(1+(exp(-x))));
-                    if((1/(1+(exp(-x))))>=0.75) next[i][j]=1;
+                    if((1/(1+(exp(-x))))>=0.7666) next[i][j]=1;
                     else next [i][j]=0;  
                 }
             }
