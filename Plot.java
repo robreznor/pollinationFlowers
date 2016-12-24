@@ -29,7 +29,6 @@ public class Plot {
         XYSeries s=new XYSeries(id);
         int n=x.length;
         for(int i=0;i<n;i++){
-            System.out.println(""+x[i]+ " " +y[i]);
             s.add(x[i],y[i]);
         }
         data.addSeries(s);
