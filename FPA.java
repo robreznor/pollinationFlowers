@@ -2,6 +2,7 @@ package pollinationFlowers;
 
 import static java.lang.Math.exp;
 import java.util.Random;
+import sun.org.mozilla.javascript.internal.ast.ForInLoop;
 
 /**
  *
@@ -13,14 +14,15 @@ public class FPA {
     int[] cost, best, currentBest, bestOfBest, x_data, y_data;
     int[][] var,sol,next;
     float x;
-    float[] p={(float)0.72,(float)0.73,(float)0.74,(float)0.75,(float)0.85};
-    float[] s={150,100};
-    float[] pbin={(float)0.6,(float)0.7,(float)0.75,(float)0.78,(float)0.8};
-    float[]lambda={1,(float)1.5,(float)1.8};
+    float[] p={(float)0.8};
+    float[] s={200};
+    float[] pbin={(float)0.7310586};
+    //float[] pbin={(float)0.7310585677624};
+    float[]lambda={(float)1.5};
     GenerateFlowers flowers;
     Random rand;
     WriteFile wr;
-    String size, archivo;
+    String size, archivo, name;
     boolean isOpen;
     
     /**
@@ -31,10 +33,10 @@ public class FPA {
      * @param isOpen señala si el archivo se encuentra en uso.
      * 
      */
-    public FPA(int maxGeneration, int n, int instance, boolean isOpen){   
+    public FPA(int maxGeneration, int n, int instance,String name, boolean isOpen){   
          
         VarCons varcons= new VarCons();
-        this.archivo= "scp"+instance+".txt";
+        this.archivo= name+instance+".txt";
         var= varcons.generate(archivo);
         varLength= var[0].length;
         this.maxGeneration= maxGeneration;
@@ -46,12 +48,14 @@ public class FPA {
         flowers= new GenerateFlowers();
         rand = new Random();
         this.seed= rand.hashCode();
+        this.seed= this.seed/10000;
         //this.seed=1956725890;
         rand.setSeed(seed);
         sol= flowers.Generate(n,varLength,seed);
         wr= new WriteFile();
         size= Integer.toString(var.length-1)+" x "+Integer.toString(varLength);
         this.isOpen= isOpen;
+        this.name= name;
         x_data= new int[maxGeneration];
         y_data= new int[maxGeneration];
         
@@ -68,7 +72,7 @@ public class FPA {
         best=  Best(sol);                     
         gBest= Fitness(best);
         System.arraycopy(best, 0, bestOfBest, 0, best.length);
-       
+
         for(posp=0;posp<p.length;posp++){
            for(posl=0;posl<lambda.length;posl++){
                for(poss=0;poss<s.length;poss++){
@@ -77,11 +81,11 @@ public class FPA {
                     while(t < maxGeneration){           
                         for(int i = 0; i < n; i++){
                             for (int j = 0; j < sol[i].length; j++) {
-                                if (p[posp] < rand.nextFloat()) {
+                                if (rand.nextFloat() < p[posp] ) {
                                     x=sol[i][j]+ Levy()*(gBest-sol[i][j]);
                                 }else{
                                     
-                                        x=sol[i][j] + rand.nextFloat()*(Math.abs(sol[i][rand.nextInt(varLength)]-sol[i][rand.nextInt(varLength)])); //Transporte mediante una dist. Uniforme 
+                                    x=sol[i][j] + rand.nextFloat()*(Math.abs(sol[i][rand.nextInt(varLength)]-sol[i][rand.nextInt(varLength)])); //Transporte mediante una dist. Uniforme 
                                 }
                                 //System.out.println(""+1/(1+(exp(-x))));
                                 if((1/(1+(exp(-x))))>=pbin[posb]) next[i][j]=1;
@@ -104,8 +108,8 @@ public class FPA {
                             bestposp=posp;
                             bestposb=posb;
                         }
-                        x_data[t]=t;
-                        y_data[t]=gBest;
+                        //x_data[t]=t;
+                        //y_data[t]=gBest;
                         System.out.println(""+gBest);
                         t++;
                     }
@@ -114,9 +118,9 @@ public class FPA {
            }
         }
         //new Draw(x_data,y_data, "Convergencia scp"+Integer.toString(instance));
-        wr.WriteFile(Integer.toString(instance),size,Integer.toString(Fitness(bestOfBest)),archivo, isOpen,seed,p[bestposp],lambda[bestposl],s[bestposs], pbin[bestposb]);
-        //System.out.println(""+gBest);
-        isOpen=true;
+        wr.WriteFile(Integer.toString(instance),name,size,Integer.toString(Fitness(bestOfBest)),archivo, isOpen,seed,p[bestposp],lambda[bestposl],s[bestposs], pbin[bestposb]);
+        System.out.println(""+gBest);
+
     }
     
     /**

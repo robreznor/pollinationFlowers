@@ -22,12 +22,14 @@ public class VarCons {
            while ((line = br.readLine()) != null) {
                for(int i=1;i<line.split(" ").length;i++){
                    if(varCount<varTotal){
+                       //System.out.println(""+Integer.parseInt(line.split(" ")[i]));
                        output[0][varCount]=Integer.parseInt(line.split(" ")[i]);
                        varCount++;
                    }else{
                        if(constCount==0){ 
                            constCount=Integer.parseInt(line.split(" ")[1]);
-                       }else{              
+                       }else{         
+                           //System.out.println(""+Integer.parseInt(line.split(" ")[i]));
                            output[constArrayNum][(Integer.parseInt(line.split(" ")[i])-1)]=1;
                            constCount--;
                            if(constCount==0)    constArrayNum++;
